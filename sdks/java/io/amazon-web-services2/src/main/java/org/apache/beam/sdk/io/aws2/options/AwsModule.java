@@ -20,9 +20,7 @@ package org.apache.beam.sdk.io.aws2.options;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -141,9 +139,7 @@ public class AwsModule extends SimpleModule {
         SerializerProvider serializer,
         TypeSerializer typeSerializer)
         throws IOException {
-      WritableTypeId typeId =
-          typeSerializer.writeTypePrefix(
-              jsonGenerator, typeSerializer.typeId(credentialsProvider, JsonToken.START_OBJECT));
+      typeSerializer.writeTypePrefixForObject(credentialsProvider, jsonGenerator);
       if (credentialsProvider.getClass().equals(StaticCredentialsProvider.class)) {
         jsonGenerator.writeStringField(
             ACCESS_KEY_ID, credentialsProvider.resolveCredentials().accessKeyId());
@@ -153,7 +149,7 @@ public class AwsModule extends SimpleModule {
         throw new IllegalArgumentException(
             "Unsupported AWS credentials provider type " + credentialsProvider.getClass());
       }
-      typeSerializer.writeTypeSuffix(jsonGenerator, typeId);
+      typeSerializer.writeTypeSuffixForObject(credentialsProvider, jsonGenerator);
     }
   }
 
